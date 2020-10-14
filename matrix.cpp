@@ -81,17 +81,25 @@ void Matrix_MUL2(int **a,int **b,int **c,int n){//递归的方法
     int ** a3=new int *[n/2];int ** a4=new int *[n/2];
     Matrix_cut(n,a,a1,a2,a3,a4);
     cout<<"a1"<<endl;
-    Matrix_Print(a1,n);
+    Matrix_Print(a1,n/2);
     cout<<"a2"<<endl;
-    Matrix_Print(a2,n);
+    Matrix_Print(a2,n/2);
     cout<<"a3"<<endl;
-    Matrix_Print(a3,n);
+    Matrix_Print(a3,n/2);
     cout<<"a4"<<endl;
-    Matrix_Print(a4,n);
-    
+    Matrix_Print(a4,n/2);
     int ** b1=new int *[n/2];int ** b2=new int *[n/2];
     int ** b3=new int *[n/2];int ** b4=new int *[n/2];
     Matrix_cut(n,b,b1,b2,b3,b4);
+    cout<<"b1"<<endl;
+    Matrix_Print(b1,n/2);
+    cout<<"a2"<<endl;
+    Matrix_Print(b2,n/2);
+    cout<<"a3"<<endl;
+    Matrix_Print(b3,n/2);
+    cout<<"a4"<<endl;
+    Matrix_Print(b4,n/2);
+    
     int ** c1=new int *[n/2];int ** c2=new int *[n/2];
     int ** c3=new int *[n/2];int ** c4=new int *[n/2];
     int **temp1=new int*[n/2];int **temp2=new int*[n/2];
