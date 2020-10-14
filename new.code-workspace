@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		},
+		{
+			"name": "c",
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"*.py": "python",
+			"iostream": "cpp"
+		}
+	}
+}

@@ -73,14 +73,22 @@ void Matrix_cut(int n,int **a,int **a1,int **a2,int **a3,int **a4){//一个分�
                 a4[i-n/2][j-n/2]=a[i][j]; 
         }
 }
-void 4Matrix_MUL2(int **a,int **b,int **c,int n){//递归的方法
-    Matrix_Print(a,n);cout<<endl;Matrix_Print(b,n);
+void Matrix_MUL2(int **a,int **b,int **c,int n){//递归的方法
     if(n==2){
         Matrix_MUL(a,b,c,2);
     }else{
     int ** a1=new int *[n/2];int ** a2=new int *[n/2];
     int ** a3=new int *[n/2];int ** a4=new int *[n/2];
     Matrix_cut(n,a,a1,a2,a3,a4);
+    cout<<"a1"<<endl;
+    Matrix_Print(a1,n);
+    cout<<"a2"<<endl;
+    Matrix_Print(a2,n);
+    cout<<"a3"<<endl;
+    Matrix_Print(a3,n);
+    cout<<"a4"<<endl;
+    Matrix_Print(a4,n);
+    
     int ** b1=new int *[n/2];int ** b2=new int *[n/2];
     int ** b3=new int *[n/2];int ** b4=new int *[n/2];
     Matrix_cut(n,b,b1,b2,b3,b4);
@@ -123,7 +131,7 @@ Matrix_init(c,n);
 cout<<"输入矩阵A"<<endl;Matrix_input(a,n);
 cout<<"输入矩阵B"<<endl;Matrix_input(b,n);
 Matrix_MUL2(a,b,c,n);
-//cout<<"乘法结果"<<endl;
+cout<<"乘法结果"<<endl;
 Matrix_Print(c,n);
 return 0;   
 }
