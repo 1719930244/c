@@ -98,8 +98,8 @@ void Matrix_MUL2(int **a,int **b,int **c,int n){//递归的方法
     cout<<"a3"<<endl;
     Matrix_Print(b3,n/2);
     cout<<"a4"<<endl;
+
     Matrix_Print(b4,n/2);
-    
     int ** c1=new int *[n/2];int ** c2=new int *[n/2];
     int ** c3=new int *[n/2];int ** c4=new int *[n/2];
     int **temp1=new int*[n/2];int **temp2=new int*[n/2];
