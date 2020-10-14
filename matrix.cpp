@@ -93,11 +93,11 @@ void Matrix_MUL2(int **a,int **b,int **c,int n){//递归的方法
     Matrix_cut(n,b,b1,b2,b3,b4);
     cout<<"b1"<<endl;
     Matrix_Print(b1,n/2);
-    cout<<"a2"<<endl;
+    cout<<"b2"<<endl;
     Matrix_Print(b2,n/2);
-    cout<<"a3"<<endl;
+    cout<<"b3"<<endl;
     Matrix_Print(b3,n/2);
-    cout<<"a4"<<endl;
+    cout<<"b4"<<endl;
 
     Matrix_Print(b4,n/2);
     int ** c1=new int *[n/2];int ** c2=new int *[n/2];
