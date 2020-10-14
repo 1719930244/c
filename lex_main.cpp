@@ -147,7 +147,7 @@ void Print_error(int lines,string error){
     fclose(fp);
 }
 /********************编译预处理，取出无用的字符和注释**********************/
-void filterResource(char r[], int pProject)
+void filterResource(char r[], int &pProject)
 {
     char tempString[10000];
     int count=0,lines = 0;
@@ -156,8 +156,7 @@ void filterResource(char r[], int pProject)
            continue;
         }
         else if(r[i]=='\n'){
-            cnt_line[lines++]=i;
-            cout<<"lines "<<lines<<" "<<cnt_line[lines-1]<<r[cnt_line[lines-1]]<<endl;
+            cnt_line[lines++]=count-1;
             continue;
         }
         else if(r[i]=='/'&&r[i+1]=='/'){
@@ -165,6 +164,7 @@ void filterResource(char r[], int pProject)
                 while(r[i]!='\n'&&r[i]!='$'){
                     i++;
                 }
+                
                 continue;
             }
         else if(r[i]=='/'&&r[i+1]=='*'){
@@ -186,6 +186,7 @@ void filterResource(char r[], int pProject)
         }
     }
     tempString[count] = '\0';
+    pProject=count;
     strcpy(r, tempString);//产生净化之后的源程序
 }
 /********************编译预处理，取出无用的字符和注释**********************/
@@ -433,13 +434,17 @@ void GetToken(int &syn, char resourceProject[], char token[], int &pProject,int 
     }
 }
 void Print(char s[],int n){
+    for(int i=0;i<10;i++){
+        cout<<" cnt: line"<<i<<" "<<cnt_line[i]<<endl;
+    }
     int l=0;
     cout<<"第"<<l<<"行 : ";
     for(register int i=0;i<n;i++){
     cout<<s[i];
-    if(s[i]=='\n'){
+    if(i==cnt_line[l]){
+        cout<<endl;
         l++;
-        cout<<"第"<<l<<"行";
+        cout<<"第"<<l<<"行"<<endl;
     }
 }
 
@@ -457,8 +462,7 @@ void insert(char token[]){//插入标识符表
     }
 }  
     
-int main()
-{
+int main(){
     //打开一个文件，读取其中的源程序
     char resourceProject[10000];
     char token[50] = { 0 };
@@ -478,24 +482,25 @@ int main()
     }
     resourceProject[++pProject] = '\0';
     fclose(fp);
-    cout << endl << "源程序为:" << endl;
-    Print(resourceProject, pProject); 
+    cout << endl << "源程序为:" << endl; 
     //对源程序进行过滤
     filterResource(resourceProject, pProject);
     cout << endl << "过滤之后的程序:" << endl;
-    cout << resourceProject << endl;
-    pProject = 0;//从头开始读
+    Print(resourceProject, pProject);
     int line=0;
+    pProject = 0;//从头开始读
+    
     if ((fp1 = fopen("test_compile.txt", "w+")) == NULL){
         cout << "can't open this file";
-        exit(0);
     }
+        exit(0);
+    
     while (syn != 0){
         //启动扫描
         GetToken(syn, resourceProject, token, pProject,line);
         //if((syn_last==100||99||101)&&(syn==100||101||99)){
-      //      string error="连续出现俩个标识符或常量错误";
-      //    Print_error(line,error);
+        //string error="连续出现俩个标识符或常量错误";
+        //Print_error(line,error);
         //}
         while(pProject>=cnt_line[line])
         line++;
