@@ -10,7 +10,7 @@ int main(int argc, char const *argv[])
 	int floatnum = 123.456;@ //出现错误字符
 	if(6.4 <= 5.8)
 		printf("Yes");	
-	if(floatn>5) //floatn未定义而使用
+	if(floatn>5)
 		printf("No");
 	for(int i=1;i<6;i++){
 		num2+=10;	//正确识别+=这个运算符

@@ -134,16 +134,16 @@ bool IsDigit(char digit)
 }
 /*****************判断是否为数字************************/
 
-void Print_error(int lines,string error){
+void Print_error(int lines,int place,string error){
     FILE *fp;
     if ((fp = fopen("error.txt", "a")) == NULL)
     {//打开源程序
         cout << "can't open this file";
         exit(0);
     }
-    char c[30];
+    char c[50];
     strcpy(c,error.c_str());
-    fprintf(fp, "( 错误行数：%d ,错误内容： %s)\n",lines, c);
+    fprintf(fp, "( 错误行数：%d ,错误列数： %d ,错误内容： %s)\n",lines,place,c);
     fclose(fp);
 }
 /********************编译预处理，取出无用的字符和注释**********************/
@@ -160,6 +160,7 @@ void filterResource(char r[], int &pProject)
             continue;
         }
         else if(r[i]=='/'&&r[i+1]=='/'){
+                cnt_line[lines++]=count-1;
                 i++;
                 while(r[i]!='\n'&&r[i]!='$'){
                     i++;
@@ -173,7 +174,7 @@ void filterResource(char r[], int &pProject)
                     i++;
                     if(r[i]=='$'){
                             tempString[count++]=r[i];
-                            Print_error(lines,"注释不对");
+                            Print_error(lines,count-cnt_line[lines-1],"注释不对");
                             break;
                     }
                 }
@@ -428,8 +429,8 @@ void GetToken(int &syn, char resourceProject[], char token[], int &pProject,int 
         syn = 0;//种别码为0
     } 
     else{//不能被以上词法分析识别，则出错。
-        Print_error(line,"字符不能被识别");
-        cout<<"字符无法识别： "<<ch<<"end"<<endl;
+        Print_error(line,pProject-cnt_line[line-1],"字符不能被识别");
+        cout<<"字符无法识别： "<<chendl;
         pProject++;
     }
 }
@@ -441,7 +442,7 @@ void Print(char s[],int n){
     cout<<"第"<<l<<"行 : ";
     for(register int i=0;i<n;i++){
     cout<<s[i];
-    if(i==cnt_line[l]){
+    while(i==cnt_line[l]){
         cout<<endl;
         l++;
         cout<<"第"<<l<<"行"<<endl;
@@ -493,19 +494,16 @@ int main(){
     if ((fp1 = fopen("test_compile.txt", "w+")) == NULL){
         cout << "can't open this file";
     }
-        exit(0);
-    
     while (syn != 0){
         //启动扫描
         GetToken(syn, resourceProject, token, pProject,line);
-        //if((syn_last==100||99||101)&&(syn==100||101||99)){
-        //string error="连续出现俩个标识符或常量错误";
-        //Print_error(line,error);
-        //}
+        if((syn_last==99)&&(syn==100)){
+        string error="连续俩标识符或常量错误";
+        Print_error(line,pProject-cnt_line[line-1],error);
+        }
         while(pProject>=cnt_line[line])
         line++;
         syn_last=syn;
-        cout<<"第"<<line<<"行 : "<<pProject;
         if (syn == 100){
         //判断是否在已有标识符表中，自己实现
         insert(token);
