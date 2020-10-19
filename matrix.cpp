@@ -207,7 +207,7 @@ Matrix_init(a,n);
 Matrix_init(b,n);
 Matrix_init(c,n);
 cout<<"输入矩阵A"<<endl;Matrix_input(a,n);Matrix_Print(a,n);
-cout<<"输入矩阵B"<<endl;Matrix_input(b,n);Matrix_Print(b,n);
+cout<<"输入矩阵B"<<endl;Matrix_input(b,n);Matrix_Print(b,n);ad
 Matrix_MUL(a,b,c,n);
 cout<<"普通乘法结果"<<endl;
 Matrix_Print(c,n);
