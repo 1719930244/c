@@ -136,7 +136,7 @@ bool IsDigit(char digit)
 
 void Print_error(int lines,int place,string error){
     FILE *fp;
-    if ((fp = fopen("error.txt", "a")) == NULL)
+    if ((fp = fopen("error.o", "a")) == NULL)
     {//打开源程序
         cout << "can't open this file";
         exit(0);
@@ -430,14 +430,11 @@ void GetToken(int &syn, char resourceProject[], char token[], int &pProject,int 
     } 
     else{//不能被以上词法分析识别，则出错。
         Print_error(line,pProject-cnt_line[line-1],"字符不能被识别");
-        cout<<"字符无法识别： "<<chendl;
+        cout<<"字符无法识别： "<<ch<<endl;
         pProject++;
     }
 }
 void Print(char s[],int n){
-    for(int i=0;i<10;i++){
-        cout<<" cnt: line"<<i<<" "<<cnt_line[i]<<endl;
-    }
     int l=0;
     cout<<"第"<<l<<"行 : ";
     for(register int i=0;i<n;i++){
@@ -494,53 +491,57 @@ int main(){
     if ((fp1 = fopen("test_compile.txt", "w+")) == NULL){
         cout << "can't open this file";
     }
+
     while (syn != 0){
         //启动扫描
         GetToken(syn, resourceProject, token, pProject,line);
         if((syn_last==99)&&(syn==100)){
-        string error="连续俩标识符或常量错误";
-        Print_error(line,pProject-cnt_line[line-1],error);
-        }
-        while(pProject>=cnt_line[line])
-        line++;
+            string error="连续俩标识符或常量错误";
+            Print_error(line,pProject-cnt_line[line-1],error);
+            }
         syn_last=syn;
+        while(pProject==cnt_line[line]){
+            line++;
+            cout<<endl<<"第"<<line<<"行"<<endl;
+        }
         if (syn == 100){
         //判断是否在已有标识符表中，自己实现
         insert(token);
-        printf("( 标识符 ,%s)\n", token);
+        printf("( 标识符 ,%s)", token);
         fprintf(fp1, "( 标识符 ,%s)\n", token);
         }
         else if (syn >= 1 && syn <= 32)
         {//保留字
-            printf("( %s ,--)\n", reserveWord[syn]);
+            printf("( %s ,--)", reserveWord[syn]);
             fprintf(fp1, "( %s ,--)\n", reserveWord[syn]);
         }
         else if (syn == 99)
         {//const 常数
-            printf("( 常数 ,%s)\n", token);
+            printf("( 常数 ,%s)", token);
             fprintf(fp1, "( 常数 ,%s)\n", token);
         }
         else if (syn == 101)
         {//const 常数
-            printf("( 字符串常量 ,%s)\n", token);
+            printf("( 字符串常量 ,%s)", token);
             fprintf(fp1, "( 字符串常量 ,%s)\n", token);
         } 
         else if (syn >= 33 && syn <= 68)
         {
-            printf("( %s ,--)\n", operatorOrDelimiter[syn - 33]);
+            printf("( %s ,--)", operatorOrDelimiter[syn - 33]);
             fprintf(fp1, "( %s ,--)\n", operatorOrDelimiter[syn - 33]);
         }
         else if(syn>=102&&syn<=107){
-            printf("( %s ,--)\n", operatorOrDelimiter[syn - 66]);
+            printf("( %s ,--)", operatorOrDelimiter[syn - 66]);
             fprintf(fp1, "( %s ,--)\n", operatorOrDelimiter[syn - 66]);
         }
     }
-/* for (i = 0; i<cnt; i++)
+    cout<<endl;
+ for (i = 0; i<cnt; i++)
     {//插入标识符表中
         printf("第%d个标识符：  %s\n", i, IDentifierTbl[i]);
         fprintf(fp1, "第%d个标识符：  %s\n", i, IDentifierTbl[i]);
     }
-*/
+
    fclose(fp1);
     return 0;
 }
