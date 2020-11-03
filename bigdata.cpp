@@ -22,6 +22,6 @@ int main(){
     a.insert(1,'1');
 //  b=input();
     cout<<a<<endl;;
-    cout<<a1;
+    cout<<a;
     return 0;
 }
