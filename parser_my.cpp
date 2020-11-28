@@ -5,19 +5,20 @@
 #include <map>
 #include <iomanip>
 #include <stack>
+#include <string.h>
 using namespace std;
 const int maxnlen = 1e4;
 class Grammar {
 private:
-	set<char>Vn;//non-terminal·ÇÖÕ½á·û¼¯ºÏ
-	set<char>Vt; //terminalÖÕ½á·û¼¯ºÏ
+	set<char>Vn;//non-terminaléç»ˆç»“ç¬¦é›†åˆ
+	set<char>Vt; //terminalç»ˆç»“ç¬¦é›†åˆ
 	char S;
-	map<char, set<string> > P;//¹æÔò¼¯ºÏ
+	map<char, set<string> > P;//è§„åˆ™é›†åˆ
 	map<char,set<char> >FIRST;
 	map<char,set<char> >FOLLOW;
 	map<string, string>Table;
 public:
-	//¹¹Ôìº¯Êı
+	//æ„é€ å‡½æ•°
 	Grammar(string filename) {
 		Vn.clear();
 		Vt.clear();
@@ -26,7 +27,7 @@ public:
 		FOLLOW.clear();
 		ifstream in(filename);
 		if (!in.is_open()) {
-			cout << "ÎÄ·¨  ÎÄ¼ş´ò¿ªÊ§°Ü" << endl;
+			cout << "æ–‡æ³•  æ–‡ä»¶æ‰“å¼€å¤±è´¥" << endl;
 			exit(1);
 		}
 		char *buffer = new char[maxnlen];
@@ -48,7 +49,7 @@ public:
 		}
 		delete buffer;
 		/*
-			Êä³öVn£¬Vt£¬set
+			è¾“å‡ºVnï¼ŒVtï¼Œset
 			
 		*/
 		
@@ -86,7 +87,7 @@ public:
 	}
 	
 	void print() {
-		cout << "µ±Ç°·ÖÎöÎÄ·¨Îª£º" << endl << endl;
+		cout << "å½“å‰åˆ†ææ–‡æ³•ä¸ºï¼š" << endl << endl;
 		for (set<char>::iterator it = Vn.begin(); it != Vn.end(); it++) {
 			char cur_s = *it;
 			for (set<string>::iterator it1 = P[cur_s].begin(); it1 != P[cur_s].end(); it1++) {
@@ -98,17 +99,17 @@ public:
 	
 	void getFirst() {
 		FIRST.clear();
-		//ÅĞ¶Ïµü´ú´ÎÊı
+		//åˆ¤æ–­è¿­ä»£æ¬¡æ•°
 		int iter = 4;
 		while (iter--) {
 			for (set<char>::iterator it = Vn.begin(); it != Vn.end(); it++) {
 				char cur_s = *it;
-				/*Çë±à³ÌÊµÏÖÒÔÏÂ¹¦ÄÜ
+				/*è¯·ç¼–ç¨‹å®ç°ä»¥ä¸‹åŠŸèƒ½
 				***************************************************************************************
 				cur_s->cur_string[0]
-					a¼Óµ½AµÄFIRST¼¯
+					aåŠ åˆ°Açš„FIRSTé›†
 				cur_s->cur_string[0]
-					BµÄFITRST¼¯¼Óµ½AµÄFIRST¼¯
+					Bçš„FITRSTé›†åŠ åˆ°Açš„FIRSTé›†
 				*/
 				
 
@@ -122,8 +123,8 @@ public:
 
 			}
 		}
-		//Êä³öFIRST¼¯
-		cout << "FIRST¼¯Îª£º" << endl << endl;
+		//è¾“å‡ºFIRSTé›†
+		cout << "FIRSTé›†ä¸ºï¼š" << endl << endl;
 		for (set<char>::iterator it = Vn.begin(); it != Vn.end();it++) {
 			char cur_s = *it;
 			cout << "FIRST()   " << cur_s ;
@@ -136,46 +137,46 @@ public:
 	void getFollow() {
 		FOLLOW.clear();
 		FOLLOW[S].insert('#');
-		//ÅĞ¶Ïµü´ú´ÎÊı
+		//åˆ¤æ–­è¿­ä»£æ¬¡æ•°
 		int iter = 4;
 		while (iter--) {
 			for (set<char>::iterator it = Vn.begin(); it != Vn.end(); it++) {
 				char cur_s = *it;
-				/*Çë±à³ÌÊµÏÖÒÔÏÂ¹¦ÄÜ
+				/*è¯·ç¼–ç¨‹å®ç°ä»¥ä¸‹åŠŸèƒ½
 				***************************************************************************************
 				cur_s->cur_string[0]
-				a¼Óµ½AµÄFIRST¼¯
+				aåŠ åˆ°Açš„FIRSTé›†
 				cur_s->cur_string[0]
-				BµÄFITRST¼¯¼Óµ½AµÄFIRST¼¯
+				Bçš„FITRSTé›†åŠ åˆ°Açš„FIRSTé›†
 				*/
 				for (set<string>::iterator it1 = P[cur_s].begin(); it1 != P[cur_s].end(); it1++) {
 					string cur_string = *it1;
 					for (int i = 0; i < cur_string.length() - 1; i++) {
-						/*µÚÒ»²½£º
+						/*ç¬¬ä¸€æ­¥ï¼š
 							B->Ac
-							½«c¼Óµ½AµÄfollow¼¯
+							å°†cåŠ åˆ°Açš„followé›†
 						*/
 
 
 
 						
-						/*µÚ¶ş²½£º
+						/*ç¬¬äºŒæ­¥ï¼š
 							B->AC
-							½«CµÄfirst¼¯¼Óµ½AµÄfollow¼¯
+							å°†Cçš„firsté›†åŠ åˆ°Açš„followé›†
 						*/
 
 
 
 						
-					   //µÚÈı²½£º±éÀúCµÄfirstÈ¥³ı@£¬¼Óµ½AµÄfollow¼¯
+					   //ç¬¬ä¸‰æ­¥ï¼šéå†Cçš„firstå»é™¤@ï¼ŒåŠ åˆ°Açš„followé›†
 							
 
 
-					/* µÚËÄ²½£¬½ÏÄÑ
-					AC/ACKÎª×îºóÁ½¸ö»òÕßÈı¸ö
+					/* ç¬¬å››æ­¥ï¼Œè¾ƒéš¾
+					AC/ACKä¸ºæœ€åä¸¤ä¸ªæˆ–è€…ä¸‰ä¸ª
 					B->AC
-					B->ACK(KµÄfirst¼¯º¬ÓĞ@)
-					½«BµÄfollow¼¯¼ÓÈëµ½CµÄfollow¼¯
+					B->ACK(Kçš„firsté›†å«æœ‰@)
+					å°†Bçš„followé›†åŠ å…¥åˆ°Cçš„followé›†
 					*/				
 
 
@@ -184,8 +185,8 @@ public:
 				}
 			}
 		}
-		//Êä³öFOLLOW¼¯
-		cout << "FOLLOW¼¯Îª£º" << endl << endl;
+		//è¾“å‡ºFOLLOWé›†
+		cout << "FOLLOWé›†ä¸ºï¼š" << endl << endl;
 		for (set<char>::iterator it = Vn.begin(); it != Vn.end(); it++) {
 			char cur_s = *it;
 			cout << "FOLLOW()  " << cur_s;
@@ -208,7 +209,7 @@ public:
 			char cur_s = *it;
 			for (auto it1 = P[cur_s].begin(); it1 != P[cur_s].end(); it1++) {
 				/*
-				²úÉúÊ½Îª
+				äº§ç”Ÿå¼ä¸º
 					cur_s->cur_string
 				*/
 				string cur_string = *it1;
@@ -236,7 +237,7 @@ public:
 			}
 		}
 		/*
-			¼ì²é³ö´íĞÅÏ¢£º¼´±í¸ñÖĞÃ»ÓĞ³öÏÖ¹ıµÄ
+			æ£€æŸ¥å‡ºé”™ä¿¡æ¯ï¼šå³è¡¨æ ¼ä¸­æ²¡æœ‰å‡ºç°è¿‡çš„
 		*/
 		
 		
@@ -250,11 +251,11 @@ public:
 			}
 		}
 		
-		/*Çë±à³ÌÊµÏÖÒÔÏÂ¹¦ÄÜ
+		/*è¯·ç¼–ç¨‹å®ç°ä»¥ä¸‹åŠŸèƒ½
 		***************************************************************************************				
-			ÏÔÊ¾Table£¬ÀıÈç¸ñÊ½´òÓ¡£ºcout << *it << "->" << setw(7) << Table[iter];
+			æ˜¾ç¤ºTableï¼Œä¾‹å¦‚æ ¼å¼æ‰“å°ï¼šcout << *it << "->" << setw(7) << Table[iter];
 		*/
-		cout << "ÏÔÊ¾table±í£º" << endl << endl;
+		cout << "æ˜¾ç¤ºtableè¡¨ï¼š" << endl << endl;
 		
 
 
@@ -270,9 +271,9 @@ public:
 
 	}
 	/*
-		Ã¿Ò»´Î·ÖÎöÒ»¸öÊäÈë´®
-		SignÎª·ûºÅÕ»,³öÕ»×Ö·ûÎªx
-		ÊäÈë×Ö·û´®µ±Ç°×Ö·ûÎªa
+		æ¯ä¸€æ¬¡åˆ†æä¸€ä¸ªè¾“å…¥ä¸²
+		Signä¸ºç¬¦å·æ ˆ,å‡ºæ ˆå­—ç¬¦ä¸ºx
+		è¾“å…¥å­—ç¬¦ä¸²å½“å‰å­—ç¬¦ä¸ºa
 	*/
 	bool AnalyzePredict(string inputstring){
 		stack<char>Sign;
@@ -284,19 +285,19 @@ public:
 		while (flag) {
 			char x = Sign.top();
 			Sign.pop();
-			//Èç¹ûÊÇÖÕ½á·û,Ö±½ÓÒÆ³ö·ûºÅÕ»
+			//å¦‚æœæ˜¯ç»ˆç»“ç¬¦,ç›´æ¥ç§»å‡ºç¬¦å·æ ˆ
 			if (Vt.count(x)) {
 				if (x == a)a = inputstring[StringPtr++];
 				else
 					return false;
 			}
 			else {
-				/*Çë±à³ÌÊµÏÖÒÔÏÂ¹¦ÄÜ
+				/*è¯·ç¼–ç¨‹å®ç°ä»¥ä¸‹åŠŸèƒ½
 				***************************************************************************************
 				*/
-				//µÚÒ»²½£ºÈç¹û²»ÊÇÖÕ½á·û£¬Èç¹ûÊÇÄ©Î²·ûºÅ
+				//ç¬¬ä¸€æ­¥ï¼šå¦‚æœä¸æ˜¯ç»ˆç»“ç¬¦ï¼Œå¦‚æœæ˜¯æœ«å°¾ç¬¦å·
 				
-				//µÚ¶ş²½£ºÈç¹ûÊÇ·ÇÖÕ½á·û£¬ĞèÒªÒÆ½ø²Ù×÷
+				//ç¬¬äºŒæ­¥ï¼šå¦‚æœæ˜¯éç»ˆç»“ç¬¦ï¼Œéœ€è¦ç§»è¿›æ“ä½œ
 
 
 
@@ -308,7 +309,7 @@ public:
 		return true;
 	}
 	/*
-		Ïû³ı×óµİ¹é
+		æ¶ˆé™¤å·¦é€’å½’
 	*/
 	void remove_left_recursion(){
 		string tempVn = "";
@@ -318,7 +319,7 @@ public:
 		
 		for (int i = 0; i < tempVn.length(); i++) {
 			char pi = tempVn[i];
-			/*Çë±à³ÌÊµÏÖÏû³ı×óµİ¹éµÄ¹¦ÄÜ
+			/*è¯·ç¼–ç¨‹å®ç°æ¶ˆé™¤å·¦é€’å½’çš„åŠŸèƒ½
 				***************************************************************************************
 			*/
 
@@ -340,7 +341,7 @@ public:
 		}
 	}
 	/*
-		ÌáÈ¡×óÒò×Ó
+		æå–å·¦å› å­
 	*/
 	void remove_left_gene(char c) {
 		char NewVn;
@@ -397,7 +398,7 @@ public:
 };
 int main() {
 	/*
-	ÎÄ·¨²âÊÔ
+	æ–‡æ³•æµ‹è¯•
 	E->T|E+T;
 	T->F|T*F;
 	F->i|(E);
@@ -407,12 +408,12 @@ int main() {
 	E->TA;
 	F->(E)|i;
 	T->FB;
-	Ö±½Ó½«ÉÏÃæÁ½¸ö²âÊÔÑùÀı·ÅÔÚparse_test1.txtºÍparse_test2.txtÖĞ
+	ç›´æ¥å°†ä¸Šé¢ä¸¤ä¸ªæµ‹è¯•æ ·ä¾‹æ”¾åœ¨parse_test1.txtå’Œparse_test2.txtä¸­
 	*/
 	string filename_gramer = "D:\\parse_test1.txt";
 	Grammar *grammar=new Grammar(filename_gramer);
-	cout << "/-------------------------Ã»ÓĞÏû³ı×óµİ¹é-----------------------------/" << endl;
-	cout << "¹æ¸ñÏÔÊ¾£º" << endl;
+	cout << "/-------------------------æ²¡æœ‰æ¶ˆé™¤å·¦é€’å½’-----------------------------/" << endl;
+	cout << "è§„æ ¼æ˜¾ç¤ºï¼š" << endl;
 	grammar->ShowByTogether();
 	cout << endl;
 	grammar->getFirst();
@@ -424,12 +425,12 @@ int main() {
 	cout << "/--------------------------------------------------------------------/" << endl<<endl<<endl;
 
 
-	cout << "/-------------------------ÒÑ¾­Ïû³ı×óµİ¹é-----------------------------/" << endl;
+	cout << "/-------------------------å·²ç»æ¶ˆé™¤å·¦é€’å½’-----------------------------/" << endl;
 	/*
-	Ïû³ı×óµİ¹éÖ®ºóµÄÅĞ¶Ï
+	æ¶ˆé™¤å·¦é€’å½’ä¹‹åçš„åˆ¤æ–­
 	*/
 	grammar->remove_left_recursion();
-	cout << "¹æ¸ñÏÔÊ¾£º" << endl;
+	cout << "è§„æ ¼æ˜¾ç¤ºï¼š" << endl;
 	cout << endl;
 	grammar->ShowByTogether();
 	grammar->getFirst();
