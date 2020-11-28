@@ -42,5 +42,6 @@
         "typeinfo": "cpp"
     },
     "C_Cpp.default.cppStandard": "c++11",
-    "C_Cpp.default.cStandard": "c11"
+    "C_Cpp.default.cStandard": "c11",
+    "python.pythonPath": "/home/daoge/anaconda3/bin/python"
 }
