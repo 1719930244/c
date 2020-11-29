@@ -234,7 +234,6 @@ public:
 		//int i = 0; i < s2.length() ; i++
 		//set<char>::iterator iter1;
 		for (set<char>::iterator iter1 =Vt.begin(); iter1!=Vt.end();iter1++ ) {
-			//char c=Vt[iter1];
 			Vt_temp.insert(*iter1);
 		}
 		Vt_temp.insert('#');
@@ -249,7 +248,6 @@ public:
 						TableLeft = TableLeft +cur_s + *it2;
 						Table[TableLeft] = cur_string;
 					}
-					
 				}
 				else {
 					string TableLeft = "";
@@ -265,11 +263,6 @@ public:
 				}
 			}
 		}
-		/*
-			检查出错信息：即表格中没有出现过的
-		*/
-		
-		
 		for (auto it = Vn.begin(); it != Vn.end(); it++) {
 			for (auto it1 = Vt_temp.begin(); it1 != Vt_temp.end(); it1++) {
 				string TableLeft = "";
@@ -282,23 +275,27 @@ public:
 		
 		/*请编程实现以下功能
 		***************************************************************************************				
-			显示Table，例如格式打印：cout << *it << "->" << setw(7) << Table[iter];
+			显示Table，例如格式打印：cout << *it << "->" <<  Table[iter];
 		*/
-		cout << "显示table表：" << endl << endl;
+		cout << "显示table表：" << endl << endl<<"  ";
+		for (auto it1 = Vt_temp.begin(); it1 != Vt_temp.end(); it1++) {
+				char a=*it1;
+				cout<<setw(15)<<a;
+				}
+			cout<<endl;
+		for (auto it = Vn.begin(); it != Vn.end(); it++) {
+			cout<<*it<<" ";
+			for (auto it1 = Vt_temp.begin(); it1 != Vt_temp.end(); it1++) {
+				string TableLeft = "";
+				TableLeft =TableLeft+ *it + *it1;
+				string a=TableLeft.substr(0,1)+"->"+Table[TableLeft];
+				cout<<setw(15)<<a;
+				}
+			cout<<endl;
+			}
+			
+		}
 		
-
-
-
-
-
-
-
-
-
-
-
-
-	}
 	/*
 		每一次分析一个输入串
 		Sign为符号栈,出栈字符为x
@@ -449,14 +446,7 @@ int main() {
 	grammar->getFollow();
 	cout << endl;
 	grammar->getTable();
-	
-	cout << "/--------------------------------------------------------------------/" << endl<<endl<<endl;
-
-
 	cout << "/-------------------------已经消除左递归-----------------------------/" << endl;
-	/*
-	消除左递归之后的判断
-	*/
 	grammar->remove_left_recursion();
 	cout << "规格显示：";
 	cout << endl;
