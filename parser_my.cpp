@@ -5,6 +5,7 @@
 #include <map>
 #include <iomanip>
 #include <stack>
+#include <string.h>
 using namespace std;
 const int maxnlen = 1e4;
 class Grammar {
@@ -12,10 +13,10 @@ private:
 	set<char>Vn;//non-terminal非终结符集合
 	set<char>Vt; //terminal终结符集合
 	char S;
-	map<char, set<string> > P;//规则集合
-	map<char,set<char> >FIRST;
-	map<char,set<char> >FOLLOW;
-	map<string, string>Table;
+	map<char, set<string> > P;//产生式规则集合
+	map<char,set<char> >FIRST;//first集合
+	map<char,set<char> >FOLLOW;//follow集合
+	map<string, string>Table;//生成的驱动表
 public:
 	//构造函数
 	Grammar(string filename) {
@@ -32,9 +33,13 @@ public:
 		char *buffer = new char[maxnlen];
 		in.getline(buffer, maxnlen, '#');
 		string temps = "";
+		//起始式的标志
 		bool is_sethead = 0;
+		//读取每个产生式为temp并加入
 		for (int i = 0; i < strlen(buffer); i++) {
-			if (buffer[i] == '\n' || buffer[i] == ' ')continue;
+			if (buffer[i] == '\n' || buffer[i] == ' ')
+				continue;
+			//其中每个；为一个产生式规则结束
 			if (buffer[i] == ';') {
 				if (!is_sethead) {
 					this->setHead(temps[0]);
@@ -49,32 +54,45 @@ public:
 		delete buffer;
 		/*
 			输出Vn，Vt，set
-			
 		*/
-		
+		cout<<"非终结符结合Vn有："<<endl;
+		for (set<char>::iterator it = Vn.begin(); it != Vn.end(); it++) {
+			cout<<*it<<endl;
+		}
+		cout<<"终结符结合Vt有："<<endl;	
+		for (set<char>::iterator it = Vt.begin(); it != Vt.end(); it++) {
+			cout<<*it<<endl;
+		}	
+		this->print;
 	}
 	
 	void setHead(char c) {
 		S = c;
 	}
-	
+	//加入一个产生式规则
 	void add(string s) {
 		char s1 = s[0];
 		string s2="";
 		int num = 0;
 		for (int i = 0; i < s.length() ; i++) {
-			if (s[i] == '>')num=i;
-			if (num == 0)continue;
+			if (s[i] == '>')
+				num=i;
+			if (num == 0)
+				continue;
 			if (i > num)
 				s2 += s[i];
 		}
 		s2 += ';';
+		//s1为非终结符
 		Vn.insert(s1);
 		string temp = "";
 		//set<char>::iterator iter1 = s2.begin();
-		for (int i = 0; i < s2.length() ; i++) {//char s : s2
+		for (int i = 0; i < s2.length() ; i++) {
+			//char s : s2
 			char s=s2[i];
-			if (!isupper(s) && s != '|'&&s != ';'&&s!='@')Vt.insert(s);
+			//对于产生式右部的每一个字符添加终结符，并将合并的产生式分开
+			if (!isupper(s) && s != '|'&&s != ';'&&s!='@')
+			Vt.insert(s);
 			if (s == '|' || s == ';') {
 				P[s1].insert(temp);
 				temp = "";
@@ -86,7 +104,7 @@ public:
 	}
 	
 	void print() {
-		cout << "当前分析文法为：" << endl << endl;
+		cout << "当前分析所得到的文法为：" << endl << endl;
 		for (set<char>::iterator it = Vn.begin(); it != Vn.end(); it++) {
 			char cur_s = *it;
 			for (set<string>::iterator it1 = P[cur_s].begin(); it1 != P[cur_s].end(); it1++) {
@@ -440,7 +458,6 @@ int main() {
 	
 
 	cout << "/--------------------------------------------------------------------end/" << endl << endl << endl;
-	system("pause");
 	return 0;
 }
 
