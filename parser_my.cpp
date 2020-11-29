@@ -37,7 +37,7 @@ public:
 		bool is_sethead = 0;
 		//读取每个产生式为temp并加入
 		for (int i = 0; i < strlen(buffer); i++) {
-			if (buffer[i] == '\n' || buffer[i] == ' ')
+			if (buffer[i] == '\n' || buffer[i] == ' '|| (int)buffer[i]==13)
 				continue;
 			//其中每个；为一个产生式规则结束
 			if (buffer[i] == ';') {
@@ -46,23 +46,21 @@ public:
 					is_sethead = 1;
 				}
 				this->add(temps);
-				temps = "";
+				temps="";
 			}
 			else
 				temps += buffer[i];
 		}
 		delete buffer;
-		/*
-			输出Vn，Vt，set
-		*/
-		cout<<"非终结符结合Vn有："<<endl;
+		cout<<"非终结符集合Vn有："<<endl;
 		for (set<char>::iterator it = Vn.begin(); it != Vn.end(); it++) {
-			cout<<*it<<endl;
+			cout<<*it<<" ";
 		}
-		cout<<"终结符结合Vt有："<<endl;	
+		cout<<endl<<"终结符集合Vt有："<<endl;	
 		for (set<char>::iterator it = Vt.begin(); it != Vt.end(); it++) {
-			cout<<*it<<endl;
-		}	
+			cout<<*it<<" ";
+		}
+		cout<<endl;	
 		this->print();
 	}
 	bool is_Non_terminal(char s){
@@ -117,7 +115,7 @@ public:
 	}
 	
 	void print() {
-		cout << "当前分析所得到的文法为：" << endl << endl;
+		cout << "当前分析所得到的文法为：" << endl;
 		for (set<char>::iterator it = Vn.begin(); it != Vn.end(); it++) {
 			char cur_s = *it;
 			for (set<string>::iterator it1 = P[cur_s].begin(); it1 != P[cur_s].end(); it1++) {
@@ -134,35 +132,36 @@ public:
 		while (iter--) {
 			for (set<char>::iterator it = Vn.begin(); it != Vn.end(); it++) {
 				char cur_s = *it;
-				for (set<string>::iterator it1 = P[it].begin(); it1 != P[cur_s].end(); it1++) {
+				for (set<string>::iterator it1 = P[cur_s].begin(); it1 != P[cur_s].end(); it1++) {
 					string cur_string = *it1;
 					//分cur_string[0]是终结符，非终结符，和非终结符的first集是否有@
-					for(int i= 0;i<cur_string.length;i++)
-						if( is_terminal(cur_string[i])!=Vt.end()){
-							FIRST[cur_s].insert(cur_string);
+					for(int i= 0;i<cur_string.length();i++){
+						if( is_terminal(cur_string[i])||cur_string[i]=='@'){
+							FIRST[cur_s].insert(cur_string[i]);
 							break;
 						}	
 						else if(is_Non_terminal(cur_string[i])){
-							for(temp:FIRST[cur_string[i]]){
-								if(temp!="@")
+							for(auto temp:FIRST[cur_string[i]]){
+								if(temp!='@')
 								FIRST[cur_s].insert(temp);
 							}
-							if(FIRST[cur_string].find("@")!=FIRST[cur_string].end()){
-								if(i==cur_string.length-1)
-									FIRST[cur_s].insert("@");	
+							if(FIRST[cur_string[i]].find('@')!=FIRST[cur_string[i]].end()){
+								if(i==cur_string.length()-1)
+									FIRST[cur_s].insert('@');	
 								continue;
 							}
 							else
 								break;
-							}	
 						}
-						else{
-							cout<<" error !"<<endl;
+						else
+							{
+							cout<<cur_string[i]<< " is error !"<<endl;
 						}
 					}				
 				}
 		}
-		cout << "FIRST集为：" << endl << endl;
+	}
+		cout << "FIRST集为："<< endl;
 		for (set<char>::iterator it = Vn.begin(); it != Vn.end();it++) {
 			char cur_s = *it;
 			cout << "FIRST()   " << cur_s ;
@@ -172,53 +171,54 @@ public:
 			cout << endl;
 		}
 	}
-	void getFollow() {
+	void getFollow(){
 		FOLLOW.clear();
 		FOLLOW[S].insert('#');
 		//判断迭代次数
-		int iter = 4;
+		int iter = 5;
 		while (iter--) {
 			for (set<char>::iterator it = Vn.begin(); it != Vn.end(); it++) {
 				char cur_s = *it;
-				/*请编程实现以下功能
-				***************************************************************************************
-				cur_s->cur_string[0]
-				a加到A的FIRST集
-				cur_s->cur_string[0]
-				B的FITRST集加到A的FIRST集
-				*/
+				/*  第一步：B->Ac,将c加入到A的follow集
+					第二步：B->AC,将C的first集加到A的follow集
+				    第三步：遍历C的first去除@，加到A的follow集
+					第四步，AC/ACK为最后两个或者三个 
+							B->AC
+							B->ACK(K的first集含有@) 
+							将B的follow集加入到C的follow集
+					*/	
 				for (set<string>::iterator it1 = P[cur_s].begin(); it1 != P[cur_s].end(); it1++) {
-					string cur_string = *it1;
+					string cur_string = *it1;							
 					for (int i = 0; i < cur_string.length() - 1; i++) {
-						if(is_Non_terminal(i)&&is_terminal(i+1)){
-							FOLLOW[i].insert(cur_string[i+1]);
+						if(is_Non_terminal(cur_string[i])&&is_terminal(cur_string[i+1])){
+							FOLLOW[cur_string[i]].insert(cur_string[i+1]);
 						}
-						/*
-						第二步：
-						B->AC
-						将C的first集加到A的follow集
-						三步：遍历C的first去除@，加到A的follow集
-						第四步，较难
-						AC/ACK为最后两个或者三个
-						B->AC
-						B->ACK(K的first集含有@)
-						将B的follow集加入到C的follow集
-						*/				
 						if(is_Non_terminal(cur_string[i])&&is_Non_terminal(cur_string[i+1])){
-							for(temp:FIRST[cur_string[i+1]]){
-								if(temp!="@")
+							for(auto temp:FIRST[cur_string[i+1]]){
+								if(temp!='@')
 								FOLLOW[cur_string[i]].insert(temp);
 						}
 					}
-					
-
-
-					}
 				}
+					int end_index=cur_string.length()-1;
+					if(is_Non_terminal(cur_string[end_index])){
+							for(auto temp:FOLLOW[cur_s]){
+								FOLLOW[cur_string[end_index]].insert(temp);
+							}
+						//当end_index所在非终结符的first集中存在@时
+						while(FIRST[cur_string[end_index]].find('@')!=FIRST[cur_string[end_index]].end()){
+							if(end_index-1<0||is_terminal(cur_string[end_index-1]))
+								break;
+							for(auto temp:FOLLOW[cur_s]){
+								FOLLOW[cur_string[end_index-1]].insert(temp);
+							}
+							end_index--;
+						}
+					}
 			}
 		}
-		//输出FOLLOW集
-		cout << "FOLLOW集为：" << endl << endl;
+	}
+		cout << "FOLLOW集为："<< endl;
 		for (set<char>::iterator it = Vn.begin(); it != Vn.end(); it++) {
 			char cur_s = *it;
 			cout << "FOLLOW()  " << cur_s;
@@ -227,6 +227,7 @@ public:
 			}
 			cout << endl;
 		}
+	}
 	
 	void getTable() {
 		set<char>Vt_temp;
@@ -240,12 +241,8 @@ public:
 		for (auto it = Vn.begin(); it != Vn.end(); it++) {
 			char cur_s = *it;
 			for (auto it1 = P[cur_s].begin(); it1 != P[cur_s].end(); it1++) {
-				/*
-				产生式为
-					cur_s->cur_string
-				*/
 				string cur_string = *it1;
-				if (isupper(cur_string[0])) {
+				if (is_Non_terminal(cur_string[0])) {
 					char first_s = cur_string[0];
 					for (auto it2 = FIRST[first_s].begin(); it2 != FIRST[first_s].end(); it2++) {
 						string TableLeft = "";
@@ -441,10 +438,10 @@ int main() {
 	T->FB;
 	直接将上面两个测试样例放在parse_test1.txt和parse_test2.txt中
 	*/
-	string filename_gramer = "D:\\parse_test1.txt";
+	string filename_gramer = "parse_test2.txt";
 	Grammar *grammar=new Grammar(filename_gramer);
 	cout << "/-------------------------没有消除左递归-----------------------------/" << endl;
-	cout << "规格显示：" << endl;
+	cout << "规格显示："<<endl;
 	grammar->ShowByTogether();
 	cout << endl;
 	grammar->getFirst();
@@ -461,16 +458,15 @@ int main() {
 	消除左递归之后的判断
 	*/
 	grammar->remove_left_recursion();
-	cout << "规格显示：" << endl;
+	cout << "规格显示：";
 	cout << endl;
 	grammar->ShowByTogether();
+	cout << endl;
 	grammar->getFirst();
 	cout << endl;
 	grammar->getFollow();
 	cout << endl;
 	grammar->getTable();
-	
-
-	cout << "/--------------------------------------------------------------------end/" << endl << endl << endl;
+	cout << "/--------------------------------------------------------------------end/" <<endl;
 	return 0;
 }
