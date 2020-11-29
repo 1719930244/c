@@ -65,6 +65,19 @@ public:
 		}	
 		this->print;
 	}
+	bool is_Non_terminal(char s){
+		if(Vn.find(s)!=Vn.end())
+		return true;
+		else
+		return false;
+	}
+	
+	bool is_terminal(char s){
+		if(Vt.find(s)!=Vt.end())
+		return true;
+		else
+		return false;
+	}
 	
 	void setHead(char c) {
 		S = c;
@@ -121,26 +134,34 @@ public:
 		while (iter--) {
 			for (set<char>::iterator it = Vn.begin(); it != Vn.end(); it++) {
 				char cur_s = *it;
-				/*请编程实现以下功能
-				***************************************************************************************
-				cur_s->cur_string[0]
-					a加到A的FIRST集
-				cur_s->cur_string[0]
-					B的FITRST集加到A的FIRST集
-				*/
-				
-
-
-
-
-
-
-
-
-
-			}
+				for (set<string>::iterator it1 = P[it].begin(); it1 != P[cur_s].end(); it1++) {
+					string cur_string = *it1;
+					//分cur_string[0]是终结符，非终结符，和非终结符的first集是否有@
+					for(int i= 0;i<cur_string.length;i++)
+						if( is_terminal(cur_string[i])!=Vt.end()){
+							FIRST[cur_s].insert(cur_string);
+							break;
+						}	
+						else if(is_Non_terminal(cur_string[i])){
+							for(temp:FIRST[cur_string[i]]){
+								if(temp!="@")
+								FIRST[cur_s].insert(temp);
+							}
+							if(FIRST[cur_string].find("@")!=FIRST[cur_string].end()){
+								if(i==cur_string.length-1)
+									FIRST[cur_s].insert("@");	
+								continue;
+							}
+							else
+								break;
+							}	
+						}
+						else{
+							cout<<" error !"<<endl;
+						}
+					}				
+				}
 		}
-		//输出FIRST集
 		cout << "FIRST集为：" << endl << endl;
 		for (set<char>::iterator it = Vn.begin(); it != Vn.end();it++) {
 			char cur_s = *it;
@@ -169,33 +190,27 @@ public:
 				for (set<string>::iterator it1 = P[cur_s].begin(); it1 != P[cur_s].end(); it1++) {
 					string cur_string = *it1;
 					for (int i = 0; i < cur_string.length() - 1; i++) {
-						/*第一步：
-							B->Ac
-							将c加到A的follow集
-						*/
-
-
-
-						
-						/*第二步：
-							B->AC
-							将C的first集加到A的follow集
-						*/
-
-
-
-						
-					   //第三步：遍历C的first去除@，加到A的follow集
-							
-
-
-					/* 第四步，较难
-					AC/ACK为最后两个或者三个
-					B->AC
-					B->ACK(K的first集含有@)
-					将B的follow集加入到C的follow集
-					*/				
-
+						if(is_Non_terminal(i)&&is_terminal(i+1)){
+							FOLLOW[i].insert(cur_string[i+1]);
+						}
+						/*
+						第二步：
+						B->AC
+						将C的first集加到A的follow集
+						三步：遍历C的first去除@，加到A的follow集
+						第四步，较难
+						AC/ACK为最后两个或者三个
+						B->AC
+						B->ACK(K的first集含有@)
+						将B的follow集加入到C的follow集
+						*/				
+						if(is_Non_terminal(cur_string[i])&&is_Non_terminal(cur_string[i+1])){
+							for(temp:FIRST[cur_string[i+1]]){
+								if(temp!="@")
+								FOLLOW[cur_string[i]].insert(temp);
+						}
+					}
+					
 
 
 					}
