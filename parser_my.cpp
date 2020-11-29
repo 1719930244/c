@@ -345,30 +345,12 @@ public:
 		
 		for (int i = 0; i < tempVn.length(); i++) {
 			char pi = tempVn[i];
-			/*请编程实现消除左递归的功能
-				***************************************************************************************
-			*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+			for(auto i:P[pi]){
+			cout<<i<<endl;	
+			}
 			remove_left_gene(pi);
 		}
 	}
-	/*
-		提取左因子
-	*/
 	void remove_left_gene(char c) {
 		char NewVn;
 		for (int i = 0; i < 26; i++) {
