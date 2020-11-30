@@ -367,7 +367,6 @@ public:
 		}
 		return true;
 	}
-
 	void remove_left_recursion(){
 		string tempVn = "";
 		for (auto it = Vn.begin(); it != Vn.end(); it++) {
@@ -375,35 +374,54 @@ public:
 		}
 		for (int i = 0; i < tempVn.length(); i++) {
 			char pi = tempVn[i];
-			set<string>Right;
-			for(auto it = P[pi].begin(); it != P[pi].end(); it++) {
+			set<string>NewPRight;
+			//对于所有的产生式的右部right
+			for (auto it = P[pi].begin(); it != P[pi].end(); it++) {
 				bool isget = 0;
 				string right = *it;
 				for (int j = 0; j < i; j++) {
 					char pj = tempVn[j];
+					//每一个产生式的右部如果等于一个非终结符
 					if (pj == right[0]) {
 						isget = 1;
 						for (auto it1 = P[pj].begin(); it1 != P[pj].end(); it1++) {
 							string s = *it1 + right.substr(1);
-							Right.insert(s);
+							NewPRight.insert(s);
+							cout<<s<<endl;
 						}
 					}
 				}
 				if (isget == 0) {
-					Right.insert(right);
+					NewPRight.insert(right);
 				}
 			}
-		if(i!=0)
-			P[pi] = Right;	
+			for (int j = 0; j < i; j++) {
+				char pj=tempVn[j];
+				for (auto it = P[pi].begin(); it != P[pi].end(); it++) {
+					string right = *it;
+					if (right[0] == pj) {
+						for (auto itpj = P[pj].begin(); itpj != P[pj].end(); itpj++) {
+							string s = *itpj + right.substr(1);
+							NewPRight.insert(s);
+						}
+					}
+					else {
+						NewPRight.insert(right);
+					}
+				}
+			}
+			if(i!=0)
+				P[pi] = NewPRight;
 			remove_left_gene(pi);
 		}
 	}
-	
+
 	void remove_left_gene(char c) {
+		//c为原先的非终结符
 		char NewVn;
 		for (int i = 0; i < 26; i++) {
 			NewVn = i + 'A';
-			if (!is_Non_terminal(NewVn)) {
+			if (!Vn.count(NewVn)) {
 				break;
 			}
 		}
@@ -412,18 +430,17 @@ public:
 			string right = *it;
 			if (right[0] == c) {
 				isaddNewVn = 1;
-				
 				break;
 			}
 		}
 		if (isaddNewVn) {
-			set<string>Right;
-			set<string>NewPNewVn;
+			set<string>NewPRight;//加入了新非终结符NewVn的右部
+			set<string>NewPNewVn;//新非终结符的右部
 			for (auto it = P[c].begin(); it != P[c].end(); it++) {
 				string right = *it;
 				if (right[0] != c) {
 					right += NewVn;
-					Right.insert(right);
+					NewPRight.insert(right);
 				}
 				else {
 					right = right.substr(1);
@@ -434,10 +451,13 @@ public:
 			Vn.insert(NewVn);
 			NewPNewVn.insert("@");
 			P[NewVn] = NewPNewVn;
-			P[c] = Right;
+			for (auto temp:NewPNewVn)
+				cout<<"添加产生式"<<NewVn<<"->"<<temp<<endl;
+			P[c] = NewPRight;
+			for (auto temp:NewPRight)
+				cout<<"原先产生式变化为"<<c<<"->"<<temp<<endl;
 		}
 	}
-	
 	void ShowByTogether() {
 		for (auto it = Vn.begin(); it != Vn.end(); it++) {
 			cout << *it << "->";
@@ -453,7 +473,7 @@ public:
 	}
 };
 int main() {
-	string filename_gramer = "parse_test1.txt";
+	string filename_gramer = "parse_test2.txt";
 	Grammar *grammar=new Grammar(filename_gramer);
 	cout << "/-------------------------没有消除左递归-----------------------------/" << endl;
 	cout << "规格显示："<<endl;
@@ -466,8 +486,7 @@ int main() {
 	grammar->getTable();
 	cout << "/-------------------------已经消除左递归-----------------------------/" << endl;
 	grammar->remove_left_recursion();
-	cout << "规格显示：";
-	cout << endl;
+	cout << "规格显示："<< endl;
 	grammar->ShowByTogether();
 	cout << endl;
 	grammar->getFirst();
@@ -477,8 +496,8 @@ int main() {
 	grammar->getTable();
 	string temp;
 	cout<<"输入预测的句子"<<endl;
-	//cin>>temp;
-	temp="abc+age+80";
+	cin>>temp;
+	//temp="aaaa";
 	if(grammar->AnalyzePredict(temp))
 			cout<<endl<<temp<<"  预测分析成功！"<<endl;
 	else
