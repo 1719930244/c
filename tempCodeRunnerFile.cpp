@@ -1,1 +1,1 @@
-					right += NewVn;
+setw(6)

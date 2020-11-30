@@ -63,6 +63,7 @@ public:
 		cout<<endl;	
 		this->print();
 	}
+	
 	bool is_Non_terminal(char s){
 		if(Vn.find(s)!=Vn.end())
 		return true;
@@ -164,18 +165,19 @@ public:
 		cout << "FIRST集为："<< endl;
 		for (set<char>::iterator it = Vn.begin(); it != Vn.end();it++) {
 			char cur_s = *it;
-			cout << "FIRST()   " << cur_s ;
+			cout << "FIRST(" << cur_s<<")" ;
 			for (set<char>::iterator it1 = FIRST[cur_s].begin(); it1 != FIRST[cur_s].end(); it1++) {
 				 cout<<"       " << *it1 ;
 			}
 			cout << endl;
 		}
 	}
+	
 	void getFollow(){
 		FOLLOW.clear();
 		FOLLOW[S].insert('#');
 		//判断迭代次数
-		int iter = 5;
+		int iter = 100;
 		while (iter--) {
 			for (set<char>::iterator it = Vn.begin(); it != Vn.end(); it++) {
 				char cur_s = *it;
@@ -221,7 +223,7 @@ public:
 		cout << "FOLLOW集为："<< endl;
 		for (set<char>::iterator it = Vn.begin(); it != Vn.end(); it++) {
 			char cur_s = *it;
-			cout << "FOLLOW()  " << cur_s;
+			cout << "FOLLOW(" << cur_s<<")";
 			for (set<char>::iterator it1 = FOLLOW[cur_s].begin(); it1 != FOLLOW[cur_s].end(); it1++) {
 				cout << "       " << *it1;
 			}
@@ -272,15 +274,10 @@ public:
 				}
 			}
 		}
-		
-		/*请编程实现以下功能
-		***************************************************************************************				
-			显示Table，例如格式打印：cout << *it << "->" <<  Table[iter];
-		*/
-		cout << "显示table表：" << endl << endl<<"  ";
+		cout << "显示table表：" << endl<<"  ";
 		for (auto it1 = Vt_temp.begin(); it1 != Vt_temp.end(); it1++) {
 				char a=*it1;
-				cout<<setw(15)<<a;
+				cout<<setw(8)<<a;
 				}
 			cout<<endl;
 		for (auto it = Vn.begin(); it != Vn.end(); it++) {
@@ -288,81 +285,131 @@ public:
 			for (auto it1 = Vt_temp.begin(); it1 != Vt_temp.end(); it1++) {
 				string TableLeft = "";
 				TableLeft =TableLeft+ *it + *it1;
+				if(Table[TableLeft]!="error"){
 				string a=TableLeft.substr(0,1)+"->"+Table[TableLeft];
-				cout<<setw(15)<<a;
+				cout<<setw(8)<<a;
+				}else
+				{
+					cout<<setw(8)<<"error";
+				}
+				
 				}
 			cout<<endl;
 			}
 			
 		}
-		
-	/*
-		每一次分析一个输入串
-		Sign为符号栈,出栈字符为x
-		输入字符串当前字符为a
-	*/
+	void print_stack(stack<char>Sign,string inputstring,int t){
+		cout<<" 栈";
+		int len=Sign.size();
+		int len1=len;
+		char a[100];
+		int temp=0;
+		while(len--){
+			a[temp++]=Sign.top();
+			Sign.pop();
+		}
+		while(temp>0){
+			cout<<a[--temp]<<" ";
+			Sign.push(a[temp]);
+		}
+		cout<<setw(20-len1*2)<<inputstring[t];
+		for(int i=t+1;i<inputstring.length();i++)
+			cout<<inputstring[i];
+		cout<<endl;
+	}
 	bool AnalyzePredict(string inputstring){
 		stack<char>Sign;
 		Sign.push('#');
 		Sign.push(S);
 		int StringPtr = 0;
+		inputstring+="#";
+		print_stack(Sign,inputstring,StringPtr);
 		char a = inputstring[StringPtr++];
 		bool flag = true;
 		while (flag) {
 			char x = Sign.top();
 			Sign.pop();
 			//如果是终结符,直接移出符号栈
-			if (Vt.count(x)) {
-				if (x == a)a = inputstring[StringPtr++];
+			if (is_terminal(x)) {
+				if (x == a){
+					print_stack(Sign,inputstring,StringPtr);
+					a = inputstring[StringPtr++];
+					}
 				else
 					return false;
 			}
 			else {
-				/*请编程实现以下功能
-				***************************************************************************************
-				*/
-				//第一步：如果不是终结符，如果是末尾符号
-				
-				//第二步：如果是非终结符，需要移进操作
-
-
-
-
-				
-				
+				//如果不是终结符，
+				//如果是末尾符号
+				if (x == '#') {
+					if (x == a){
+						flag = false;
+					}	
+					else
+						return false;
+				}
+				else {
+					string left = "";
+					left += x;
+					left += a;
+					if (Table[left] != "error") {
+						string right = Table[left];
+						for (int i = right.length() - 1; i >= 0; i--) {
+							Sign.push(right[i]);
+						}
+							print_stack(Sign,inputstring,StringPtr-1);
+					}
+					else {
+						return false;
+					}
+				}
 			}		
 		}
 		return true;
 	}
-	/*
-		消除左递归
-	*/
+
 	void remove_left_recursion(){
 		string tempVn = "";
 		for (auto it = Vn.begin(); it != Vn.end(); it++) {
 			tempVn += *it;
 		}
-		
 		for (int i = 0; i < tempVn.length(); i++) {
 			char pi = tempVn[i];
-			for(auto i:P[pi]){
-			cout<<i<<endl;	
+			set<string>Right;
+			for(auto it = P[pi].begin(); it != P[pi].end(); it++) {
+				bool isget = 0;
+				string right = *it;
+				for (int j = 0; j < i; j++) {
+					char pj = tempVn[j];
+					if (pj == right[0]) {
+						isget = 1;
+						for (auto it1 = P[pj].begin(); it1 != P[pj].end(); it1++) {
+							string s = *it1 + right.substr(1);
+							Right.insert(s);
+						}
+					}
+				}
+				if (isget == 0) {
+					Right.insert(right);
+				}
 			}
+		if(i!=0)
+			P[pi] = Right;	
 			remove_left_gene(pi);
 		}
 	}
+	
 	void remove_left_gene(char c) {
 		char NewVn;
 		for (int i = 0; i < 26; i++) {
 			NewVn = i + 'A';
-			if (!Vn.count(NewVn)) {
+			if (!is_Non_terminal(NewVn)) {
 				break;
 			}
 		}
 		bool isaddNewVn = 0;
 		for (auto it = P[c].begin(); it != P[c].end(); it++) {
 			string right = *it;
-			
 			if (right[0] == c) {
 				isaddNewVn = 1;
 				
@@ -370,13 +417,13 @@ public:
 			}
 		}
 		if (isaddNewVn) {
-			set<string>NewPRight;
+			set<string>Right;
 			set<string>NewPNewVn;
 			for (auto it = P[c].begin(); it != P[c].end(); it++) {
 				string right = *it;
 				if (right[0] != c) {
 					right += NewVn;
-					NewPRight.insert(right);
+					Right.insert(right);
 				}
 				else {
 					right = right.substr(1);
@@ -387,9 +434,10 @@ public:
 			Vn.insert(NewVn);
 			NewPNewVn.insert("@");
 			P[NewVn] = NewPNewVn;
-			P[c] = NewPRight;
+			P[c] = Right;
 		}
 	}
+	
 	void ShowByTogether() {
 		for (auto it = Vn.begin(); it != Vn.end(); it++) {
 			cout << *it << "->";
@@ -405,19 +453,7 @@ public:
 	}
 };
 int main() {
-	/*
-	文法测试
-	E->T|E+T;
-	T->F|T*F;
-	F->i|(E);
-	A->+TA|@;
-	B->*FB|@;
-	E->TA;
-	F->(E)|i;
-	T->FB;
-	直接将上面两个测试样例放在parse_test1.txt和parse_test2.txt中
-	*/
-	string filename_gramer = "parse_test2.txt";
+	string filename_gramer = "parse_test1.txt";
 	Grammar *grammar=new Grammar(filename_gramer);
 	cout << "/-------------------------没有消除左递归-----------------------------/" << endl;
 	cout << "规格显示："<<endl;
@@ -439,6 +475,13 @@ int main() {
 	grammar->getFollow();
 	cout << endl;
 	grammar->getTable();
-	cout << "/--------------------------------------------------------------------end/" <<endl;
+	string temp;
+	cout<<"输入预测的句子"<<endl;
+	//cin>>temp;
+	temp="abc+age+80";
+	if(grammar->AnalyzePredict(temp))
+			cout<<endl<<temp<<"  预测分析成功！"<<endl;
+	else
+			cout<<endl<<temp<<"  预测分析失败"<<endl;	
 	return 0;
 }
